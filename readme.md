@@ -1,3 +1,12 @@
+sub_cursor
+=========
+[![Crates.io: sub_cursor](https://img.shields.io/crates/v/hls_m3u8.svg)](https://crates.io/crates/sub_cursor)
+[![Documentation](https://docs.rs/hls_m3u8/badge.svg)](https://docs.rs/sub_cursor)
+[![Build Status](https://travis-ci.org/luro02/sub_cursor.svg?branch=master)](https://travis-ci.org/luro02/sub_cursor)
+[![Code Coverage](https://codecov.io/gh/luro02/sub_cursor/branch/master/graph/badge.svg)](https://codecov.io/gh/luro02/sub_cursor/branch/master)
+[![License: Apache](https://img.shields.io/badge/License-Apache%202.0-red.svg)](LICENSE-APACHE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ## What is a SubCursor?
 You can think of a `SubCursor` as slices for `Reader`s or `Writer`s instead of buffer.
 
