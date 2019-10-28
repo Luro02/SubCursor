@@ -1,0 +1,27 @@
+[package]
+name = "sub_cursor"
+version = "0.1.0"
+description = "This library provides a SubCursor, that allows to only have access to parts of a reader or writer."
+repository = "https://www.github.com/luro02/sub_cursor"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["io", "cursor", "read", "write"]
+categories = ["Filesystem"]
+authors = ["Luro02 <24826124+Luro02@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = []
+
+[dependencies]
+tokio = { version = "0.2.0-alpha.6", optional = true, default-features = false, features = ["io", "sync"]}
+
+[dev-dependencies]
+criterion = "0.3"
+pretty_assertions = "0.6"
+slice = "0.0.4"
+
+[[bench]]
+name = "sub_cursor"
+harness = false
