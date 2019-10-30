@@ -40,8 +40,8 @@ impl<T: Read + Seek> Archive<T> {
 fn main() -> io::Result<()> {
     let mut archive = Archive::new();
     // imagine, that these are Files instead of Cursor
-    archive.push(Cursor::new(b"This is an example file"));
-    archive.push(Cursor::new(b"This is another example file"));
+    archive.push(Cursor::new(b"This is an example file".to_vec()));
+    archive.push(Cursor::new(b"This is another example file".to_vec()));
 
     Ok(())
 }
@@ -82,11 +82,12 @@ impl<T: Read + Seek> Archive<T> {
 
 fn main() -> io::Result<()> {
     let mut archive = Archive::new();
-    // imagine, that these are Files instead of Cursor
-    archive.push(Cursor::new(b"This is an example file"));
-    archive.push(Cursor::new(b"This is another example file"));
 
-    let file = Arc::new(Mutex::new(Cursor::new(b"file1,file2,file3")));
+    archive.push(SubCursor::from(b"This is an example file".to_vec()));
+    archive.push(SubCursor::from(b"This is another example file".to_vec()));
+
+    let file = Arc::new(Mutex::new(Cursor::new(b"file1,file2,file3".to_vec())));
+
     archive.push(
         SubCursor::from(file.clone())
             // first file starts at index 0
