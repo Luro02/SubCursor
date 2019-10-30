@@ -2,13 +2,13 @@ sub_cursor
 =========
 [![Crates.io: sub_cursor](https://img.shields.io/crates/v/sub_cursor.svg)](https://crates.io/crates/sub_cursor)
 [![Documentation](https://docs.rs/sub_cursor/badge.svg)](https://docs.rs/sub_cursor)
-[![Build Status](https://travis-ci.org/luro02/sub_cursor.svg?branch=master)](https://travis-ci.org/luro02/sub_cursor)
+[![Build Status](https://travis-ci.com/Luro02/sub_cursor.svg?branch=master)](https://travis-ci.com/luro02/sub_cursor)
 [![Code Coverage](https://codecov.io/gh/luro02/sub_cursor/branch/master/graph/badge.svg)](https://codecov.io/gh/luro02/sub_cursor/branch/master)
 [![License: Apache](https://img.shields.io/badge/License-Apache%202.0-red.svg)](LICENSE-APACHE)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## What is a SubCursor?
-You can think of a [`SubCursor`] as slices for [`Read`]ers or [`Write`]rs instead of buffer.
+You can think of a [`SubCursor`] as slices for [`Read`]ers or [`Write`]rs.
 
 [`SubCursor`]: https://github.com/Luro02/sub_cursor
 [`Read`]: https://doc.rust-lang.org/std/io/trait.Read.html
@@ -123,6 +123,9 @@ sub_cursor = "0.1"
 
 ## Documentation
 You can find the documentation [here](https://docs.rs/sub_cursor).
+
+## Inspiration
+This project is loosely inspired by [`slice`](https://github.com/hinaria/slice).
 
 ## License
 

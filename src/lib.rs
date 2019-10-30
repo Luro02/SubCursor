@@ -1,3 +1,4 @@
+#![feature(seek_convenience)]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 #![deny(missing_debug_implementations)]
@@ -7,7 +8,6 @@
         //deny(warnings)
     )
 ))]
-#![feature(seek_convenience, const_fn)]
 #![warn(
     clippy::pedantic,
     clippy::nursery,
