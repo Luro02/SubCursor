@@ -1,5 +1,6 @@
 // Other library, that does almost the same
 // https://github.com/hinaria/slice/
+use std::cmp;
 use std::fmt;
 use std::io::{self, Cursor};
 use std::io::{Read, Seek, SeekFrom, Write};
@@ -409,32 +410,39 @@ where
             return Ok(0);
         }
 
-        let (base_pos, offset) = match style {
+        let (start_offset, offset) = match style {
             SeekFrom::Start(offset) => {
+                // offset % self.len() // for the case, that someone seeks after the end.
+                // unwrap_or(offset), is for a cursor length of 0 (divison by 0).
                 relative_position = offset.checked_rem(self.len() as u64).unwrap_or(offset);
+                // update the new position
                 self.position = relative_position + self.start as u64;
 
                 return Ok(relative_position);
             }
+            // start_offset = end, because well it seeks from the end:
             SeekFrom::End(offset) => (self.len() as u64, offset),
             SeekFrom::Current(offset) => (relative_position, offset),
         };
 
         let new_pos = {
             if offset >= 0 {
-                Some(base_pos.wrapping_add(offset.checked_abs().unwrap_or(0) as u64))
+                // because of `if offset >= 0`, the offset is already a positive i64.
+                let offset = offset.checked_abs().unwrap_or(0) as u64;
+                Some(start_offset.wrapping_add(offset))
             } else {
-                base_pos.checked_sub(offset.wrapping_neg().checked_abs().unwrap_or(0) as u64)
+                start_offset.checked_sub(offset.wrapping_neg().checked_abs().unwrap_or(0) as u64)
             }
         };
 
         match new_pos {
-            Some(n) => {
-                if n > self.len() as u64 {
-                    relative_position = n.checked_rem(self.len() as u64).unwrap_or(n);
+            Some(offset) => {
+                if offset > self.len() as u64 {
+                    relative_position = offset.checked_rem(self.len() as u64).unwrap_or(offset);
                 } else {
-                    relative_position = n;
+                    relative_position = offset;
                 }
+
                 self.position = relative_position + self.start as u64;
                 Ok(relative_position)
             }
@@ -452,28 +460,17 @@ where
     fn stream_position(&mut self) -> io::Result<u64> { Ok(self.position()) }
 }
 
-// calculates the number of available bytes.
-fn calculate_available_bytes(buffer_length: u64, end: u64, position: u64) -> u64 {
-    // if the wanted bytes are more, than there is available:
-    if buffer_length > end - position {
-        // reduce it to the maximum number of bytes:
-        end - position
-    } else {
-        buffer_length
-    }
-}
-
 impl<T> Read for SubCursor<T>
 where
     T: Read + Seek,
 {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        // there is nothing to read after the self.end.
         if self.position >= self.end as u64 {
             Ok(0)
         } else {
             // check how many bytes are available:
-            let available_bytes =
-                calculate_available_bytes(buf.len() as u64, self.end as u64, self.position);
+            let remaining = cmp::min(buf.len() as u64, self.end as u64 - self.position);
 
             let position = {
                 let mut cursor = self.cursor.lock().unwrap();
@@ -489,7 +486,7 @@ where
             // result is the number of bytes, that have been read
             let result = {
                 let mut cursor = self.cursor.lock().unwrap();
-                cursor.by_ref().take(available_bytes).read(buf)?
+                cursor.by_ref().take(remaining).read(buf)?
             };
 
             // seek back to the old position, if preserve is enabled
@@ -520,8 +517,8 @@ where
         }
 
         // check how many bytes are available:
-        let available_bytes =
-            calculate_available_bytes(buf.len() as u64, self.end as u64, self.position);
+        let remaining = cmp::min(buf.len() as u64, self.end as u64 - self.position);
+        let remaining = cmp::min(remaining, usize::max_value() as u64) as usize;
 
         let position = {
             if self.preserve {
@@ -541,12 +538,7 @@ where
         }
 
         // write as many bytes as possible in the buffer
-        let result = {
-            self.cursor
-                .lock()
-                .unwrap()
-                .write(&buf[0..available_bytes as usize])?
-        };
+        let result = { self.cursor.lock().unwrap().write(&buf[..remaining])? };
 
         if let Some(position) = position {
             // seek to the old position
